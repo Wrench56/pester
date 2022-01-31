@@ -9,13 +9,16 @@ class FooBar(bar.Bar, pester.Test):
         assert "Hello World" == self.static()
     
     @staticmethod
-    def static():
+    def non_tested():
         return "Hello World"
 
 #pester.run()
 
+
 report = pester.EndReport()
 @pester.wrapper(endreport=report)
+
+
 def test():
     """Testing an obvious thing with wrapper"""
     assert False == False
@@ -26,3 +29,4 @@ def x():
     assert False == False
 
 print(report.data)
+
