@@ -1,14 +1,6 @@
 import pester
 from experiment import bar
-
-
-class XY(pester.Test):
-    def __init__(self) -> None:
-        pass
-    def hello(self):
-        assert True == True
-
-
+import types
 class FooBar(bar.Bar, pester.Test):
     def __init__(self) -> None:
         super().__init__()
@@ -17,13 +9,13 @@ class FooBar(bar.Bar, pester.Test):
         assert "Hello World" == self.static()
     
     @staticmethod
-    def static():
+    def non_tested():
         return "Hello World"
 
 pester.main()
 
 
-@pester.wrapper
+#@pester.wrapper
 def test():
     """Testing an obvious thing with wrapper"""
     assert False == False
@@ -32,4 +24,5 @@ def test():
 def x():
     """Testing an obvious thing with CLI pester tool"""
     assert False == False
+
 
