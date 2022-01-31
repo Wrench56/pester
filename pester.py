@@ -1,12 +1,12 @@
 import inspect
 import sys
 import typing, types
-from errors import NonOverridableMethodOverride as nomo
+from errors import non_overridable_error as nomo
 
 class NonOverridable(type):
     def __new__(self, name, bases, dct):
         if bases and "_run" in dct:
-            raise nomo.NonOverridableMethodOverride("Overriding _run is not allowed")
+            raise nomo.NonOverridableError("Overriding _run is not allowed")
         return type.__new__(self, name, bases, dct)
 
 class Test(metaclass=NonOverridable):
