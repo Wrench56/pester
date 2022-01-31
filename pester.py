@@ -2,6 +2,7 @@ import inspect
 import sys
 import typing, types
 from errors import non_overridable_error as nomo
+import timeit
 
 class NonOverridable(type):
     def __new__(self, name, bases, dct):
@@ -25,26 +26,40 @@ class Test(metaclass=NonOverridable):
                     Report(method)
 
 class Report():
-    def __init__(self, func) -> None:
+    def __init__(self, func, endreport=None) -> None:
+        
+        self.endreport = endreport
         self.report(func)
 
     def report(self, func):
         try:
             if func.__doc__:
                 print(func.__doc__)
-            func()
+            
+            if self.endreport:
+                time = timeit.timeit(stmt = func)
+                self.endreport.add_time(func.__name__, time)
+            else:
+                func()
+
             print("[+] Passed")
         except AssertionError:
             print("[-] Failed")
 
-class Statistics():
+class EndReport():
     def __init__(self) -> None:
-        pass
+        self.data = {}
+
+    def add_time(self, name, time):
+        if name in self.data:
+            self.data[name]["time"] = time
+        else:
+            self.data[name] = {}
+            self.data[name]["time"] = time
 
 
 
-def main():
-    
+def run():
     # The module from where the main is called from
     module = inspect.getmodule(inspect.stack()[1][0])
     all_classes = (obj for name, obj in inspect.getmembers(sys.modules[module.__name__], inspect.isclass)
@@ -56,8 +71,17 @@ def main():
                 test_instance._run(class_)
 
 
-def wrapper(func):
-    Report(func)
+
+def wrapper(*args, **kwargs):
+    if "endreport" in kwargs:
+        endreport_obj = kwargs["endreport"]
+        def inner(func):
+            Report(func, endreport=endreport_obj)
+        return inner
+    else:
+        Report(args[0])
+    
+
 
 
 
@@ -66,7 +90,5 @@ if __name__ == "__main__":
     module = __import__("main_test", globals(), locals())
     for tpl in inspect.getmembers(module, inspect.isfunction):
         func = tpl[1]
-        Report(func)
-
-        
+        Report(func)      
         
