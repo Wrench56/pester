@@ -1,25 +1,47 @@
 import inspect
 import sys
 import typing, types
+from errors import NonOverridableMethodOverride as nomo
 
-class Test():
+class NonOverridable(type):
+    def __new__(self, name, bases, dct):
+        if bases and "_run" in dct:
+            raise nomo.NonOverridableMethodOverride("Overriding _run is not allowed")
+        return type.__new__(self, name, bases, dct)
+
+class Test(metaclass=NonOverridable):
     def __init__(self) -> None:
         pass
 
-    def run(self):
-        methods = [getattr(self, m) for m in dir(self) if not m.startswith('__') and not m.startswith("run")]
-        for method in methods:
-            if not isinstance(method, types.FunctionType):
-                if isinstance(method, typing.Callable):
-                    print(f"Calling method {method.__name__}()")
-                    if method.__doc__:
-                        print(method.__doc__)
-                    try:
-                        method()
-                        print("[+] Passed")
-                    except AssertionError:
-                        print("[-] Failed")
+    def _run(self, class_) -> None:
+        methods = [x for x, y in class_.__dict__.items() if isinstance(y, (types.FunctionType))]
         
+        #methods = [getattr(self, m) for m in dir(self) if not m.startswith('__') and not m.startswith("run")]
+        for method_str in methods:
+            if not method_str.startswith("__") and not method_str.endswith("__"):
+                method = getattr(self, method_str)
+                if isinstance(method, typing.Callable):
+                    #print(f"Calling method {method.__name__}()")
+                    Report(method)
+
+class Report():
+    def __init__(self, func) -> None:
+        self.report(func)
+
+    def report(self, func):
+        try:
+            if func.__doc__:
+                print(func.__doc__)
+            func()
+            print("[+] Passed")
+        except AssertionError:
+            print("[-] Failed")
+
+class Statistics():
+    def __init__(self) -> None:
+        pass
+
+
 
 def main():
     
@@ -31,17 +53,12 @@ def main():
         for parent in class_.__mro__:
             if parent == Test:
                 test_instance = class_()
-                test_instance.run()
+                test_instance._run(class_)
 
 
 def wrapper(func):
-    try:
-        if func.__doc__:
-            print(func.__doc__)
-        func()
-        print("[+] Passed")
-    except AssertionError:
-        print("[-] Failed")
+    Report(func)
+
 
 
 
@@ -49,13 +66,7 @@ if __name__ == "__main__":
     module = __import__("main_test", globals(), locals())
     for tpl in inspect.getmembers(module, inspect.isfunction):
         func = tpl[1]
-        try:
-            if func.__doc__:
-                print(func.__doc__)
-            func()
-            print("[+] Passed")
-        except AssertionError:
-            print("[-] Failed")
+        Report(func)
 
         
         
