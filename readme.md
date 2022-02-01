@@ -1,6 +1,6 @@
-# Pester - a python unit testing library
+# Pyster - a python unit testing library
 
-Pester is an easy to use python unit tester. The main idea behind it is to provide
+pyster is an easy to use python unit tester. The main idea behind it is to provide
 a user friendly unit testing library for python. The library offers three different
 kind of testing types however each of the types can output the same message, statistic.
 The only difference is the way of implementation.
@@ -8,9 +8,9 @@ The only difference is the way of implementation.
 ## 1. Class based unit testing
 
 ```py
-import pester
+import pyster
 
-class FooBar(parent, pester.Test):
+class FooBar(parent, pyster.Test):
     def __init__(self) -> None:
         pass
     def my_test(self):
@@ -21,7 +21,7 @@ class FooBar(parent, pester.Test):
     def non_tested():
         return "Hello World"
 
-pester.run()
+pyster.run()
 ```
 
 Note that static methods won't be tested at all. They are used to provide extra functionality for other methods like the above example:
@@ -32,9 +32,9 @@ the _run. The function shouldn't be overwritten. If you try so, you will get an 
 ## 2. Wrapper based unit testing
 
 ```py
-import pester
+import pyster
 
-@pester.wrapper
+@pyster.wrapper
 def test():
     """Testing an obvious thing with wrapper"""
     assert True == True
@@ -52,6 +52,6 @@ def test():
     assert True == True
 ```
 
-> py pester.py -run
+> py pyster.py -run
 
-This will import the file and get all of its functions. Then pester will run all of the functions. This is the most simple solution, although you can't write "clean code" with this approach. You can only have "testable" functions. Functions which are only for helping you divide tasks into smaller ones shouldn't exist in this approach.
+This will import the file and get all of its functions. Then pyster will run all of the functions. This is the most simple solution, although you can't write "clean code" with this approach. You can only have "testable" functions. Functions which are only for helping you divide tasks into smaller ones shouldn't exist in this approach.

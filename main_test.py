@@ -1,7 +1,7 @@
-import pester
+import pyster
 from experiment import bar
 
-class FooBar(bar.Bar, pester.Test):
+class FooBar(bar.Bar, pyster.Test):
     def __init__(self) -> None:
         super().__init__()
     def my_test(self):
@@ -12,20 +12,20 @@ class FooBar(bar.Bar, pester.Test):
     def non_tested():
         return "Hello World"
 
-#pester.run()
+#pyster.run()
 
 
-report = pester.EndReport()
-@pester.wrapper(endreport=report)
+report = pyster.EndReport()
+@pyster.wrapper(endreport=report)
 
 
 def test():
     """Testing an obvious thing with wrapper"""
     assert False == False
 
-@pester.wrapper(endreport=report)
+@pyster.wrapper(endreport=report)
 def x():
-    """Testing an obvious thing with CLI pester tool"""
+    """Testing an obvious thing with CLI pyster tool"""
     assert False == False
 
 print(report.data)
