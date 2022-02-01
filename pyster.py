@@ -58,7 +58,7 @@ class Test(metaclass=NonOverridable):
     def __init__(self) -> None:
         pass
 
-    def _run(self, class_) -> None:
+    def _run(self, class_, style) -> None:
         methods = [x for x, y in class_.__dict__.items() if isinstance(y, (types.FunctionType))]
         
         #methods = [getattr(self, m) for m in dir(self) if not m.startswith('__') and not m.startswith("run")]
@@ -67,7 +67,7 @@ class Test(metaclass=NonOverridable):
                 method = getattr(self, method_str)
                 if isinstance(method, typing.Callable):
                     #print(f"Calling method {method.__name__}()")
-                    Report(method)
+                    Report(method, style=style)
 
 class Report():
     def __init__(self, func, endreport=None, style=None) -> None:
@@ -110,7 +110,12 @@ class EndReport():
             self.data[name] = {}
             self.data[name]["time"] = time
 
-def run() -> None:
+def run(style=None) -> None:
+    if style != None:
+        custom_style = style
+    else:
+        custom_style = Style()
+
     # The module from where the main is called from
     module = inspect.getmodule(inspect.stack()[1][0])
     all_classes = (obj for name, obj in inspect.getmembers(sys.modules[module.__name__], inspect.isclass)
@@ -119,7 +124,7 @@ def run() -> None:
         for parent in class_.__mro__:
             if parent == Test:
                 test_instance = class_()
-                test_instance._run(class_)
+                test_instance._run(class_, style=custom_style)
 
 
 
@@ -138,8 +143,10 @@ def wrapper(*args, **kwargs):
 
 
 if __name__ == "__main__":
+    # Create custom style from input params
+    custom_style = Style()
     module = __import__("main_test", globals(), locals())
     for tpl in inspect.getmembers(module, inspect.isfunction):
         func = tpl[1]
-        Report(func)      
+        Report(func, style=custom_style) 
         
