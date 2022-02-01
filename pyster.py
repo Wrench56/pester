@@ -9,7 +9,7 @@ import sys
 class Style():
     DEFAULT_STYLE = {
         "print_doc": True,
-        "meassure_time": True,
+        "measure_time": True,
         "passed_message": "[+] Passed",
         "failed_message": "[-] Failed",
         "runtime_message": "The function ran in => %s <="
@@ -86,10 +86,10 @@ class Report():
             if self.endreport:
                 time = timeit.timeit(stmt = func)
                 self.endreport.add_time(func.__name__, time)
-                if self.style.get("meassure_time"):
+                if self.style.get("measure_time"):
                     self.style.print_runtime(time) # Execution time actually
             else:
-                if self.style.get("meassure_time"):
+                if self.style.get("measure_time"):
                     time = timeit.timeit(stmt = func)
                     self.style.print_runtime(time) # Execution time actually
                 else:

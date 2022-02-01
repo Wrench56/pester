@@ -3,7 +3,7 @@ from experiment import bar
 
 
 style = pyster.Style(style_dict={
-    "meassure_time": False
+    "measure_time": False
 })
 
 class FooBar(bar.Bar, pyster.Test):
