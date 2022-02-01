@@ -23,7 +23,8 @@ class Style():
         if style_dict != {}:
             self.style.update(style_dict)
         elif kwargs != {}:
-            self.style.update(style_dict)
+            self.style.update(kwargs)
+
     
     def get(self, field) -> object:
         return self.style.get(field)
