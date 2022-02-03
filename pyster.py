@@ -4,15 +4,16 @@ import timeit
 import types
 import typing
 import sys
+import colorama
 
-
+colorama.init()
 class Style():
     DEFAULT_STYLE = {
         "print_doc": True,
         "measure_time": True,
-        "passed_message": "[+] Passed",
-        "failed_message": "[-] Failed",
-        "runtime_message": "The function ran in => %s <="
+        "passed_message": colorama.Fore.GREEN + "[PASS]" + colorama.Style.RESET_ALL + " %s",
+        "failed_message": colorama.Fore.RED + "[FAIL]" + colorama.Style.RESET_ALL + " %s",
+        "runtime_message": "The test ran in => %s <="
 
     }
     def __init__(self, style_dict={}, **kwargs):
@@ -43,11 +44,11 @@ class Style():
         """ Print the __doc__ of the test. (In pyster its used for describing the task)"""
         print(str_)
     
-    def print_passed(self):
-        print(self.get("passed_message"))
+    def print_passed(self, func):
+        print(self.get("passed_message")%func.__name__)
 
-    def print_failed(self):
-        print(self.get("failed_message"))
+    def print_failed(self, func):
+        print(self.get("failed_message")%func.__name__)
 
 
 class NonOverridable(type):
@@ -96,9 +97,9 @@ class Report():
                 else:
                     func()
 
-            self.style.print_passed()
-        except AssertionError:
-            self.style.print_failed()
+            self.style.print_passed(func)
+        except AssertionError as err:
+            self.style.print_failed(func)
 
 class EndReport():
     def __init__(self) -> None:
@@ -151,3 +152,4 @@ if __name__ == "__main__":
         func = tpl[1]
         Report(func, style=custom_style) 
         
+

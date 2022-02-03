@@ -21,20 +21,16 @@ pyster.run(style=style)
 
 
 report = pyster.EndReport()
-style = pyster.Style(style_dict={
-    "passed_message": "PASSED",
-    "failed_message": "FAILED"
-})
 
-@pyster.wrapper(endreport=report, style=style)
+@pyster.wrapper(endreport=report)
 def test():
     """Testing an obvious thing with wrapper"""
     assert False == False
 
-@pyster.wrapper(endreport=report, style=style)
+@pyster.wrapper(endreport=report)
 def x():
     """Testing an obvious thing with wrapper"""
-    assert False == False
+    assert True == False
 
 print(report.data)
 
