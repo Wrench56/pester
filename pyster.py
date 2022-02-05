@@ -228,11 +228,7 @@ def timer(func):
 
 
 if __name__ == "__main__":
-    # Create custom style from input params
-    custom_style = Style()
-    module = __import__("main_test", globals(), locals())
-    for tpl in inspect.getmembers(module, inspect.isfunction):
-        func = tpl[1]
-        Report(func, style=custom_style) 
+    # Terminal code: - Run all tests in the current folder
+    pass
         
 
