@@ -1,25 +1,54 @@
 import inspect
+import time
+from tkinter import N
 from errors import non_overridable_error as nomo
-import timeit
+#import timeit
 import types
 import typing
 import sys
-import colorama
+import traceback
+from rich import console, syntax, theme, text
+import contextlib, io
+import os
 
-colorama.init()
+def is_printable(s):
+    return not any(repr(ch).startswith("'\\x") or repr(ch).startswith("'\\u") for ch in s)
 class Style():
+    CUSTOM_THEMES = theme.Theme({
+        "debug": "bold dim cyan",
+        "warning": "bold yellow",
+        "error": "bold red",
+        "success": "bold green",
+        "info": "bold blue",
+        "warning": "dim bold yellow"
+    })
+
     DEFAULT_STYLE = {
+        "status_bar": True,
         "print_doc": True,
         "measure_time": True,
-        "passed_message": colorama.Fore.GREEN + "[PASS]" + colorama.Style.RESET_ALL + " %s",
-        "failed_message": colorama.Fore.RED + "[FAIL]" + colorama.Style.RESET_ALL + " %s",
-        "runtime_message": "The test ran in => %s <="
+        "passed_message": "  [success][PASS][/success]   %s",
+        "failed_message": "  [error][FAIL][/error]   %s",
+        "failed_error_name": "  [error][ERROR][/error]  [bold cyan]%s[/bold cyan]",
+        "failed_error_info": ": %s",
+        "debug_message": "  [debug][DEBUG][/debug]  %s",
+        "info_message": "  [info][INFO][/info]   %s",
+        "runtime_message": "  [info][INFO][/info]   The test ran in => [debug]%s[/debug] <="
+        
 
     }
+    
+    # ! USE THE FILE=sys.stdout or the timer functions swallow everything
+    ORIGIN_STDOUT = sys.stdout
+    console = console.Console(theme=CUSTOM_THEMES, file=ORIGIN_STDOUT) # ? Should I use this? theme=theme.Theme({"repr.number": "white on black"})
+    status = console.status('', refresh_per_second=10, spinner="bouncingBar") # dots or bouncingBar
+    status.start()
     def __init__(self, style_dict={}, **kwargs):
         self.style = {}
         self.style.update(self.DEFAULT_STYLE)
-
+        
+        #self.status.update(status="[bold green] ...", speed=0.5)
+        
         # Either use the style_dict or kwargs! BUT not both
         if style_dict != {}:
             self.style.update(style_dict)
@@ -38,17 +67,46 @@ class Style():
             time = f"{time:.4f}secs"
         else:
             time = f"{time:.4f}ms"
-        print(self.get("runtime_message")%time)
+        self.console.print(self.get("runtime_message")%time)
 
     def print_doc(self, str_):
         """ Print the __doc__ of the test. (In pyster its used for describing the task)"""
-        print(str_)
+        self.console.print(self.get("info_message")%str_)
     
     def print_passed(self, func):
-        print(self.get("passed_message")%func.__name__)
+        self.console.print(self.get("passed_message")%func.__name__)
 
-    def print_failed(self, func):
-        print(self.get("failed_message")%func.__name__)
+    def print_failed(self, func, err):
+        self.console.print(self.get("failed_message")%func.__name__)
+        info = repr(err).replace(str(type(err)).replace("<class '", "").replace("'>", ""), '').replace('()', '')
+        if len(info) > 0:
+            self.console.print((self.get("failed_error_name")+self.get("failed_error_info"))%(str(type(err)).replace("<class '", "").replace("'>", ""), info))
+        else:
+            self.console.print(self.get("failed_error_name")%str(type(err)).replace("<class '", "").replace("'>", ""))
+        
+        self.status.stop()
+        con_ = console.Console(theme=self.CUSTOM_THEMES) # TODO: Figure out this bug. Guess: probably sth with stdout
+
+        for line in traceback.format_exc().splitlines()[:-1]:
+            s_ = syntax.Syntax(line, "python", theme="ansi_dark")
+            
+            con_.print('  [error][ERROR][/error]  ', end='')
+            con_.print(s_)
+        con_ = None
+        self.print_status(func)
+        self.status.start()
+        #self.console.print_exception(show_locals=True)
+        
+    def print_debug(self, debug):
+        if len(debug) != 0:
+            for line in debug.strip().split('\n'):
+                self.console.print(self.get("debug_message")%line)
+    
+    def print_status(self, func):
+        self.status.update(status=f"[dim bold] Testing[/dim bold] [cyan bold]{func.__name__}[/cyan bold]")
+        
+        #self.status.start()
+
 
 
 class NonOverridable(type):
@@ -81,25 +139,33 @@ class Report():
         self.report(func)
 
     def report(self, func):
+        self.style.print_status(func)
         try:
             if self.style.get("print_doc") and func.__doc__:
+                
                 self.style.print_doc(func.__doc__)
             
             if self.endreport:
-                time = timeit.timeit(stmt = func)
-                self.endreport.add_time(func.__name__, time)
+                t, debug = timer(func, self.style)
+                
+                self.style.print_debug(debug)
+                
+                    
+                self.endreport.add_time(func.__name__, t)
                 if self.style.get("measure_time"):
-                    self.style.print_runtime(time) # Execution time actually
+                    self.style.print_runtime(t) # Execution time actually
+                    
             else:
                 if self.style.get("measure_time"):
-                    time = timeit.timeit(stmt = func)
-                    self.style.print_runtime(time) # Execution time actually
+                    t, debug = timer(func, self.style)
+                    self.style.print_debug(debug)
+                    self.style.print_runtime(t) # Execution time actually
                 else:
                     func()
 
             self.style.print_passed(func)
-        except AssertionError as err:
-            self.style.print_failed(func)
+        except Exception as err: # Do the users really want this?
+            self.style.print_failed(func, err)
 
 class EndReport():
     def __init__(self) -> None:
@@ -111,6 +177,10 @@ class EndReport():
         else:
             self.data[name] = {}
             self.data[name]["time"] = time
+    
+    def print_data(self):
+        
+        print(self.data)
 
 def run(style=None) -> None:
     if style != None:
@@ -140,7 +210,13 @@ def wrapper(*args, **kwargs):
         Report(args[0], style=kwargs.get("style"))
     
 
-
+def timer(func, x):
+    f = io.StringIO() #! Be aware that this would also swallow every rich operation. The way to solve it is the following: set the file attr of the rich console to sys.stdout when its not yet used
+    with contextlib.redirect_stdout(f):
+        start_ = time.time()
+        func()
+        stop_ = time.time()
+    return stop_-start_, f.getvalue()
 
 
 
