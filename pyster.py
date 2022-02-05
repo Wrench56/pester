@@ -1,6 +1,5 @@
 import inspect
 import time
-from tkinter import N
 from errors import non_overridable_error as nomo
 #import timeit
 import types
@@ -10,6 +9,7 @@ import traceback
 from rich import console, syntax, theme, text
 import contextlib, io
 import os
+import re
 
 def is_printable(s):
     return not any(repr(ch).startswith("'\\x") or repr(ch).startswith("'\\u") for ch in s)
@@ -26,7 +26,7 @@ class Style():
     DEFAULT_STYLE = {
         "status_bar": True,
         "print_doc": True,
-        "measure_time": True,
+        "measure_time": False,
         "passed_message": "  [success][PASS][/success]   %s",
         "failed_message": "  [error][FAIL][/error]   %s",
         "failed_error_name": "  [error][ERROR][/error]  [bold cyan]%s[/bold cyan]",
@@ -87,10 +87,15 @@ class Style():
         self.status.stop()
         con_ = console.Console(theme=self.CUSTOM_THEMES) # TODO: Figure out this bug. Guess: probably sth with stdout
 
-        for line in traceback.format_exc().splitlines()[:-1]:
+        for i, line in enumerate(traceback.format_exc().splitlines()[:-1]):
             s_ = syntax.Syntax(line, "python", theme="ansi_dark")
-            
-            con_.print('  [error][ERROR][/error]  ', end='')
+            if len(traceback.format_exc().splitlines()[:-1]) == i+1:
+                con_.print('  [error][ERROR][/error]  [error]=>[/error]', end='')
+                line = re.sub(r'^  ', '', line)
+                s_ = syntax.Syntax(line, "python", theme="ansi_dark")
+                
+            else:
+                con_.print('  [error][ERROR][/error]  ', end='')
             con_.print(s_)
         con_ = None
         self.print_status(func)
@@ -104,8 +109,6 @@ class Style():
     
     def print_status(self, func):
         self.status.update(status=f"[dim bold] Testing[/dim bold] [cyan bold]{func.__name__}[/cyan bold]")
-        
-        #self.status.start()
 
 
 
@@ -146,7 +149,7 @@ class Report():
                 self.style.print_doc(func.__doc__)
             
             if self.endreport:
-                t, debug = timer(func, self.style)
+                t, debug = timer(func)
                 
                 self.style.print_debug(debug)
                 
@@ -157,11 +160,15 @@ class Report():
                     
             else:
                 if self.style.get("measure_time"):
-                    t, debug = timer(func, self.style)
+                    t, debug = timer(func)
                     self.style.print_debug(debug)
                     self.style.print_runtime(t) # Execution time actually
                 else:
-                    func()
+                    f = io.StringIO() #! Be aware that this would also swallow every rich operation. The way to solve it is the following: set the file attr of the rich console to sys.stdout when its not yet used
+                    with contextlib.redirect_stdout(f):
+                        func()
+                    self.style.print_debug(f.getvalue())
+                    
 
             self.style.print_passed(func)
         except Exception as err: # Do the users really want this?
@@ -210,7 +217,7 @@ def wrapper(*args, **kwargs):
         Report(args[0], style=kwargs.get("style"))
     
 
-def timer(func, x):
+def timer(func):
     f = io.StringIO() #! Be aware that this would also swallow every rich operation. The way to solve it is the following: set the file attr of the rich console to sys.stdout when its not yet used
     with contextlib.redirect_stdout(f):
         start_ = time.time()
