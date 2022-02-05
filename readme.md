@@ -1,8 +1,8 @@
 # Pyster - a python unit testing library
 
 Pyster is an easy to use python unit tester. The main idea behind it is to provide
-a user friendly unit testing library for python. The library offers three different
-kind of testing types however each of the types can output the same message, statistic.
+a user friendly unit testing library for python. The library offers two different
+kind of testing types however both of the types offer the same functionality.
 The only difference is the way of implementation.
 
 ## 1. Class based unit testing
@@ -43,18 +43,6 @@ def test():
 
 This approach looks much simpler than the first one. Why should you still use the class based unit testing? Well you can use inheritance, which is a great thing in python. Also it makes your code much more readable since you can structure each "unit" into different classes. The wrapper
 tests are easy to use but it might get too complicated after a while.
-
-## 3. Terminal based unit testing
-
-```py
-def test():
-    """Testing an obvious thing with terminal"""
-    assert True == True
-```
-
-> py pyster.py -run
-
-This will import the file and get all of its functions. Then pyster will run all of the functions. This is the most simple solution, although you can't write "clean code" with this approach. You can only have "testable" functions. Functions which are only for helping you divide tasks into smaller ones shouldn't exist in this approach.
 
 ## Using Style to create custom outputs
 
