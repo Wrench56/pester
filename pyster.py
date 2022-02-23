@@ -8,11 +8,12 @@ import sys
 import traceback
 from rich import console, syntax, theme, text
 import contextlib, io
-import os
 import re
+
 
 def is_printable(s):
     return not any(repr(ch).startswith("'\\x") or repr(ch).startswith("'\\u") for ch in s)
+
 class Style():
     CUSTOM_THEMES = theme.Theme({
         "debug": "bold dim cyan",
@@ -224,11 +225,4 @@ def timer(func):
         func()
         stop_ = time.time()
     return stop_-start_, f.getvalue()
-
-
-
-if __name__ == "__main__":
-    # Terminal code: - Run all tests in the current folder
-    pass
-        
 
