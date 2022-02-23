@@ -4,6 +4,8 @@ import os
 import sys
 import argparse
 
+import endreport
+
 def parse_options(args_):
     parser = argparse.ArgumentParser(prog='pyster', description='Test your code!')
     parser.add_argument('-p', '-path', metavar='dir', dest='path', default='testing', help='path to the testing directory. Default is testing or test directory')
@@ -14,15 +16,17 @@ def parse_options(args_):
 
 def import_files(file_):
     file_ = file_.replace('//', '.').replace('/', '.').replace('\\', '.').replace('.py', '')
-    importlib.import_module(file_)
+
+    x = importlib.import_module(file_)
 
 def test_files(options, path):
     smoke_test_done = False
     for file_ in scan_dir(path):
         print(file_)
-        if not options.no_priority:
+        if options.no_priority:
             import_files(file_=file_)
         else:
+            # Do priority...
             import_files(file_=file_)
 
 def scan_dir(path):
@@ -58,9 +62,11 @@ def path_parsers(path):
 
 def main(args_):
     options = parse_options(args_=args_)
+    if options.endreport:
+        endreport.Endreport.use = True
     path = path_parsers(options.path)
     test_files(options, path)
-
+    endreport.Endreport.print_data()
 
 if __name__ == '__main__':
     main(sys.argv[1:])

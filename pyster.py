@@ -1,5 +1,6 @@
 import inspect
 import time
+from endreport import Endreport
 from errors import non_overridable_error as nomo
 #import timeit
 import types
@@ -131,7 +132,10 @@ class Test(metaclass=NonOverridable):
                 method = getattr(self, method_str)
                 if isinstance(method, typing.Callable):
                     #print(f"Calling method {method.__name__}()")
-                    Report(method, style=style)
+                    if Endreport.use:
+                        Report(method, style=style, endreport=Endreport)
+                    else:
+                        Report(method, style=style)
 
 class Report():
     def __init__(self, func, endreport=None, style=None) -> None:
@@ -150,9 +154,10 @@ class Report():
                 self.style.print_doc(func.__doc__)
             
             if self.endreport:
-                t, debug = timer(func)
-                
-                self.style.print_debug(debug)
+                t, debug, err = timer(func)
+                if err:
+                    raise err
+                self.style.print_debug(debug.getvalue())
                 
                     
                 self.endreport.add_time(func.__name__, t)
@@ -161,34 +166,23 @@ class Report():
                     
             else:
                 if self.style.get("measure_time"):
-                    t, debug = timer(func)
-                    self.style.print_debug(debug)
+                    t, debug, err = timer(func)
+                    if err:
+                        raise err
+                    self.style.print_debug(debug.getvalue())
                     self.style.print_runtime(t) # Execution time actually
                 else:
-                    f = io.StringIO() #! Be aware that this would also swallow every rich operation. The way to solve it is the following: set the file attr of the rich console to sys.stdout when its not yet used
-                    with contextlib.redirect_stdout(f):
+                    debug = io.StringIO() #! Be aware that this would also swallow every rich operation. The way to solve it is the following: set the file attr of the rich console to sys.stdout when its not yet used
+                    with contextlib.redirect_stdout(debug):
                         func()
-                    self.style.print_debug(f.getvalue())
+                    self.style.print_debug(debug.getvalue())
                     
 
             self.style.print_passed(func)
         except Exception as err: # Do the users really want this?
+            self.style.print_debug(debug.getvalue()) # Print debug messages even if there is an error
             self.style.print_failed(func, err)
 
-class EndReport():
-    def __init__(self) -> None:
-        self.data = {}
-
-    def add_time(self, name, time):
-        if name in self.data:
-            self.data[name]["time"] = time
-        else:
-            self.data[name] = {}
-            self.data[name]["time"] = time
-    
-    def print_data(self):
-        
-        print(self.data)
 
 def run(style=None) -> None:
     if style != None:
@@ -208,21 +202,31 @@ def run(style=None) -> None:
 
 
 
+
 def wrapper(*args, **kwargs):
-    if "endreport" in kwargs:
-        endreport_obj = kwargs["endreport"]
-        def inner(func):
-            Report(func, endreport=endreport_obj, style=kwargs.get("style"))
-        return inner
-    else:
-        Report(args[0], style=kwargs.get("style"))
+    if kwargs == {}:
+        if Endreport.use:
+            Report(args[0], endreport=Endreport, style=kwargs.get("style"))
+        else:
+            Report(args[0], style=kwargs.get("style"))
+    def inner(func):
+        if Endreport.use:
+            Report(func, endreport=Endreport, style=kwargs.get("style"))
+        else:
+            Report(func, style=kwargs.get("style"))
+    return inner
+        
+    
     
 
 def timer(func):
     f = io.StringIO() #! Be aware that this would also swallow every rich operation. The way to solve it is the following: set the file attr of the rich console to sys.stdout when its not yet used
     with contextlib.redirect_stdout(f):
         start_ = time.time()
-        func()
+        try:
+            func()
+        except Exception as err:
+            return None, f, err
         stop_ = time.time()
-    return stop_-start_, f.getvalue()
+    return stop_-start_, f, None
 
