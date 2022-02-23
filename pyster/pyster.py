@@ -1,6 +1,6 @@
 import inspect
 import time
-from endreport import Endreport
+from pyster.endreport import Endreport
 from errors import non_overridable_error as nomo
 #import timeit
 import types
@@ -28,7 +28,7 @@ class Style():
     DEFAULT_STYLE = {
         "status_bar": True,
         "print_doc": True,
-        "measure_time": False,
+        "measure_time": True,
         "passed_message": "  [success][PASS][/success]   %s",
         "failed_message": "  [error][FAIL][/error]   %s",
         "failed_error_name": "  [error][ERROR][/error]  [bold cyan]%s[/bold cyan]",

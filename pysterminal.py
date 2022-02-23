@@ -3,7 +3,7 @@ import os
 import sys
 import argparse
 
-import endreport
+import pyster.endreport as endreport
 
 def parse_options(args_):
     parser = argparse.ArgumentParser(prog='pyster', description='Test your code!')
