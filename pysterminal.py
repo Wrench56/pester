@@ -1,5 +1,4 @@
 import importlib
-from msilib.schema import File
 import os
 import sys
 import argparse
