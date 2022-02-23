@@ -1,6 +1,6 @@
-import pyster
+import pyster as pyster
 from experiment import bar
-
+import time
 
 style = pyster.Style(style_dict={
     "measure_time": False
@@ -17,21 +17,33 @@ class FooBar(bar.Bar, pyster.Test):
     def non_tested():
         return "Hello World"
 
-pyster.run(style=style)
+#pyster.run(style=style)
 
 
-report = pyster.EndReport()
+#report = pyster.EndReport()
 
-@pyster.wrapper(endreport=report)
+@pyster.wrapper
 def test():
     """Testing an obvious thing with wrapper"""
+    #time.sleep(1.0)
     assert False == False
 
-@pyster.wrapper(endreport=report)
+@pyster.wrapper
 def x():
     """Testing an obvious thing with wrapper"""
+    print("DEBUG TEST!")
+    time.sleep(3.0)
+    ad = []
+    ad[1]
     assert True == False
 
-print(report.data)
+@pyster.wrapper
+def y():
+    """Testing an obvious thing with wrapper"""
+    print("Init...")
+    print("Done!")
+    time.sleep(3.0)
+    assert False == False
 
 
+ #print(report.print_data())
