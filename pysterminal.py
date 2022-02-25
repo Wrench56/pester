@@ -46,15 +46,13 @@ def scan_dir(path):
 
 def path_parsers(path):
     ''' Go thru testing folder and get priority (smoke tests first, etc.) '''
-    if os.path.exists(path):
-        pass
-    else:
-        path = 'test'
-        if os.path.exists(path):
-            pass
-        else:
-            path = None
-            raise FileNotFoundError('The testing directory does not exits. Please create a testing/test directory!') # Actually not FileNotFoundError but DirectoryNotFoundError (well, on Windows that would make sense)
+    if not os.path.exists(path):
+        path = 'testing'
+        if not os.path.exists(path):
+            path = 'test'
+            if not os.path.exists(path):
+                path = None
+                raise FileNotFoundError('The testing directory does not exits. Please create a testing/test directory!') # Actually not FileNotFoundError but DirectoryNotFoundError (well, on Windows that would make sense)
     
     if path is not None:
         return path
