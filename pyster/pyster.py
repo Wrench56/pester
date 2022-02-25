@@ -1,7 +1,7 @@
 import inspect
 import time
 from pyster.endreport import Endreport
-from errors import non_overridable_error as nomo
+from pyster.errors import non_overridable_error as nomo
 #import timeit
 import types
 import typing
