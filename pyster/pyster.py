@@ -49,7 +49,7 @@ class Style():
     
     # ! USE THE FILE=sys.stdout or the timer functions swallow everything
     ORIGIN_STDOUT = sys.stdout
-    console = console.Console(theme=CUSTOM_THEMES, file=ORIGIN_STDOUT) # ? Should I use this? theme=theme.Theme({"repr.number": "white on black"})
+    console = console.Console(theme=CUSTOM_THEMES, file=ORIGIN_STDOUT, color_system="windows") # ? Should I use this? theme=theme.Theme({"repr.number": "white on black"})
     status = console.status('', refresh_per_second=10, spinner="bouncingBar") # dots or bouncingBar
     status.start()
     def __init__(self, style_dict={}, **kwargs):
