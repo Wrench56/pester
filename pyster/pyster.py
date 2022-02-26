@@ -38,7 +38,7 @@ class Style():
         "running_message": "  [running]<TEST>[/running]  %s",
         "passed_message": "    [success][PASS][/success]   %s",
         "failed_message": "    [err][FAIL][/err]   %s",
-        "failed_error_name": "    [error][ERROR][/error]  [bold cyan]%s[/bold cyan]",
+        "failed_error_name": "    [err][ERROR][/err]  [bold cyan]%s[/bold cyan]",
         "failed_error_info": ":   %s",
         "debug_message": "    [debug][DEBUG][/debug]  %s",
         "info_message": "    [info][INFO][/info]   %s",
@@ -49,7 +49,7 @@ class Style():
     
     # ! USE THE FILE=sys.stdout or the timer functions swallow everything
     ORIGIN_STDOUT = sys.stdout
-    console = console.Console(theme=CUSTOM_THEMES, file=ORIGIN_STDOUT, color_system="windows") # ? Should I use this? theme=theme.Theme({"repr.number": "white on black"})
+    console = console.Console(theme=CUSTOM_THEMES, file=ORIGIN_STDOUT, color_system="standard") # ? Should I use this? theme=theme.Theme({"repr.number": "white on black"})
     status = console.status('', refresh_per_second=10, spinner="bouncingBar") # dots or bouncingBar
     status.start()
     def __init__(self, style_dict={}, **kwargs):
@@ -97,7 +97,7 @@ class Style():
             self.console.print(self.get("failed_error_name")%str(type(err)).replace("<class '", "").replace("'>", ""))
         
         self.status.stop()
-        con_ = console.Console(theme=self.CUSTOM_THEMES, color_system='windows') # TODO: Figure out this bug. Guess: probably sth with stdout
+        con_ = console.Console(theme=self.CUSTOM_THEMES, color_system='standard') # TODO: Figure out this bug. Guess: probably sth with stdout
 
         for i, line in enumerate(traceback.format_exc().splitlines()[:-1]):
             s_ = syntax.Syntax(line, "python", theme="ansi_dark")
