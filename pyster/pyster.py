@@ -15,6 +15,11 @@ import re
 def is_printable(s):
     return not any(repr(ch).startswith("'\\x") or repr(ch).startswith("'\\u") for ch in s)
 
+def ignore(func):
+    ''' Wrapper used in classes to ignore functions'''
+    func._ignore_for_pyster = True
+    return func
+
 class Style():
     CUSTOM_THEMES = theme.Theme({
         "debug": "bold dim cyan",
@@ -125,12 +130,12 @@ class Test(metaclass=NonOverridable):
 
     def _run(self, class_, style) -> None:
         methods = [x for x, y in class_.__dict__.items() if isinstance(y, (types.FunctionType))]
-        
         #methods = [getattr(self, m) for m in dir(self) if not m.startswith('__') and not m.startswith("run")]
         for method_str in methods:
             if not method_str.startswith("__") and not method_str.endswith("__"):
                 method = getattr(self, method_str)
-                if isinstance(method, typing.Callable):
+                
+                if not hasattr(method, "_ignore_for_pyster"):
                     #print(f"Calling method {method.__name__}()")
                     if Endreport.use:
                         Report(method, style=style, endreport=Endreport)
