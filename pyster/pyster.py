@@ -35,7 +35,7 @@ class Style():
         "status_bar": True,
         "print_doc": True,
         "measure_time": True,
-        "running_message": "  [running]<TEST>[/running]  %s",
+        "running_message": "  [running]<TEST>[/running]     [bold]%s[bold]",
         "passed_message": "    [success][PASS][/success]   %s",
         "failed_message": "    [err][FAIL][/err]   %s",
         "failed_error_name": "    [err][ERROR][/err]  [bold cyan]%s[/bold cyan]",
@@ -161,7 +161,6 @@ class Report():
         self.style.print_run(func)
         try:
             if self.style.get("print_doc") and func.__doc__:
-                
                 self.style.print_doc(func.__doc__)
             
             if self.endreport:
@@ -188,9 +187,10 @@ class Report():
                         func()
                     self.style.print_debug(debug.getvalue())
                     
-
+            self.endreport.add_status(func.__name__, True)
             self.style.print_passed(func)
-        except Exception as err: # Do the users really want this?
+        except Exception as err: # Do the users really want this? Answer: Yes
+            self.endreport.add_status(func.__name__, False)
             self.style.print_debug(debug.getvalue()) # Print debug messages even if there is an error
             self.style.print_failed(func, err)
 

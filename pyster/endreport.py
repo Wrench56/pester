@@ -4,15 +4,24 @@ class _EndReport():
         self.data = {}
 
     def add_time(self, name, time):
-        if name in self.data:
-            self.data[name]["time"] = time
-        else:
-            self.data[name] = {}
-            self.data[name]["time"] = time
+        self.check_entry(name)
+        self.data[name]["time"] = time
+        
     
+    def add_status(self, name, pass_):
+        self.check_entry(name)
+        self.data[name]["pass"] = pass_
+
     def print_data(self):
         if self.use:
             print(self.data)
+        
+    def check_entry(self, name):
+        if name in self.data:
+            return True
+        else:
+            self.data[name] = {}
+            return False
 
 # create global object
 Endreport = _EndReport()
