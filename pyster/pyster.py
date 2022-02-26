@@ -1,7 +1,9 @@
 import inspect
 import time
+from pyster import options
 from pyster.endreport import Endreport
 from pyster.errors import non_overridable_error as nomo
+from pyster.errors import test_failure
 #import timeit
 import types
 import typing
@@ -193,6 +195,10 @@ class Report():
             self.endreport.add_status(func.__name__, False)
             self.style.print_debug(debug.getvalue()) # Print debug messages even if there is an error
             self.style.print_failed(func, err)
+            if not options.Options.no_error:
+                if not options.Options.one_error:
+                    raise test_failure.TestFailure(f'The function/method named {func.__name__} failed during testing!')
+
 
 
 def run(style=None) -> None:

@@ -3,6 +3,7 @@ import os
 import sys
 import argparse
 from rich import console
+from pyster import options
 
 import pyster.endreport as endreport
 
@@ -21,11 +22,11 @@ def import_files(file_):
 
     x = importlib.import_module(file_)
 
-def test_files(options, path):
+def test_files(opts, path):
     smoke_test_done = False
     for file_ in scan_dir(path):
         print(f'<{file_}>')
-        if options.no_priority:
+        if opts.no_priority:
             import_files(file_=file_)
         else:
             # Do priority...
@@ -61,11 +62,15 @@ def path_parsers(path):
         return path
 
 def main(args_):
-    options = parse_options(args_=args_)
-    if options.endreport:
+    opts = parse_options(args_=args_)
+    print(options)
+    # Set the options global so other modules will be able to access it later
+    options.Options = opts
+
+    if opts.endreport:
         endreport.Endreport.use = True
-    path = path_parsers(options.path)
-    test_files(options, path)
+    path = path_parsers(opts.path)
+    test_files(opts, path)
     endreport.Endreport.print_data()
 
 if __name__ == '__main__':
