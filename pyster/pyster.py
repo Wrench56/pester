@@ -108,7 +108,7 @@ class Style():
                 
             else:
                 con_.print('    [error][ERROR][/error]  ', end='')
-            con_.print(s_)
+            con_.print(line)
         con_ = None
         self.print_status(func)
         self.status.start()
