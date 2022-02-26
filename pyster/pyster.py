@@ -24,7 +24,7 @@ class Style():
     CUSTOM_THEMES = theme.Theme({
         "debug": "bold dim cyan",
         "warning": "bold yellow",
-        "error": "bold red",
+        "err": "bold red",
         "success": "bold green",
         "info": "bold blue",
         "warning": "dim bold yellow",
@@ -37,7 +37,7 @@ class Style():
         "measure_time": True,
         "running_message": "  [running]<TEST>[/running]  %s",
         "passed_message": "    [success][PASS][/success]   %s",
-        "failed_message": "    [error][FAIL][/error]   %s",
+        "failed_message": "    [err][FAIL][/err]   %s",
         "failed_error_name": "    [error][ERROR][/error]  [bold cyan]%s[/bold cyan]",
         "failed_error_info": ":   %s",
         "debug_message": "    [debug][DEBUG][/debug]  %s",
@@ -97,17 +97,17 @@ class Style():
             self.console.print(self.get("failed_error_name")%str(type(err)).replace("<class '", "").replace("'>", ""))
         
         self.status.stop()
-        con_ = console.Console(theme=self.CUSTOM_THEMES) # TODO: Figure out this bug. Guess: probably sth with stdout
+        con_ = console.Console(theme=self.CUSTOM_THEMES, color_system='windows') # TODO: Figure out this bug. Guess: probably sth with stdout
 
         for i, line in enumerate(traceback.format_exc().splitlines()[:-1]):
             s_ = syntax.Syntax(line, "python", theme="ansi_dark")
             if len(traceback.format_exc().splitlines()[:-1]) == i+1:
-                con_.print('    [error][ERROR][/error]  [error]=>[/error]', end='')
+                con_.print('    [err][ERROR][/err]  [err]=>[/err]', end='')
                 line = re.sub(r'^  ', '', line)
                 s_ = syntax.Syntax(line, "python", theme="ansi_dark")
                 
             else:
-                con_.print('    [error][ERROR][/error]  ', end='')
+                con_.print('    [err][ERROR][/err]  ', end='')
             con_.print(line)
         con_ = None
         self.print_status(func)
