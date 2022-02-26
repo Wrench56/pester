@@ -27,20 +27,22 @@ class Style():
         "error": "bold red",
         "success": "bold green",
         "info": "bold blue",
-        "warning": "dim bold yellow"
+        "warning": "dim bold yellow",
+        "running": "bold magenta"
     })
 
     DEFAULT_STYLE = {
         "status_bar": True,
         "print_doc": True,
         "measure_time": True,
-        "passed_message": "  [success][PASS][/success]   %s",
-        "failed_message": "  [error][FAIL][/error]   %s",
-        "failed_error_name": "  [error][ERROR][/error]  [bold cyan]%s[/bold cyan]",
-        "failed_error_info": ": %s",
-        "debug_message": "  [debug][DEBUG][/debug]  %s",
-        "info_message": "  [info][INFO][/info]   %s",
-        "runtime_message": "  [info][INFO][/info]   The test ran in => [debug]%s[/debug] <="
+        "running_message": "  [running]<TEST>[/running]  %s",
+        "passed_message": "    [success][PASS][/success]   %s",
+        "failed_message": "    [error][FAIL][/error]   %s",
+        "failed_error_name": "    [error][ERROR][/error]  [bold cyan]%s[/bold cyan]",
+        "failed_error_info": ":   %s",
+        "debug_message": "    [debug][DEBUG][/debug]  %s",
+        "info_message": "    [info][INFO][/info]   %s",
+        "runtime_message": "    [info][INFO][/info]   The test ran in => [debug]%s[/debug] <="
         
 
     }
@@ -76,6 +78,9 @@ class Style():
             time = f"{time:.4f}ms"
         self.console.print(self.get("runtime_message")%time)
 
+    def print_run(self, func):
+        self.console.print(self.get("running_message")%(func.__module__.replace('.', '/')+"::"+func.__name__))
+
     def print_doc(self, str_):
         """ Print the __doc__ of the test. (In pyster its used for describing the task)"""
         self.console.print(self.get("info_message")%str_)
@@ -97,12 +102,12 @@ class Style():
         for i, line in enumerate(traceback.format_exc().splitlines()[:-1]):
             s_ = syntax.Syntax(line, "python", theme="ansi_dark")
             if len(traceback.format_exc().splitlines()[:-1]) == i+1:
-                con_.print('  [error][ERROR][/error]  [error]=>[/error]', end='')
+                con_.print('    [error][ERROR][/error]  [error]=>[/error]', end='')
                 line = re.sub(r'^  ', '', line)
                 s_ = syntax.Syntax(line, "python", theme="ansi_dark")
                 
             else:
-                con_.print('  [error][ERROR][/error]  ', end='')
+                con_.print('    [error][ERROR][/error]  ', end='')
             con_.print(s_)
         con_ = None
         self.print_status(func)
@@ -153,6 +158,7 @@ class Report():
 
     def report(self, func):
         self.style.print_status(func)
+        self.style.print_run(func)
         try:
             if self.style.get("print_doc") and func.__doc__:
                 
