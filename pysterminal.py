@@ -4,6 +4,7 @@ import sys
 import argparse
 from rich import console
 from pyster import options
+from pyster.errors import test_failure
 
 import pyster.endreport as endreport
 
@@ -63,15 +64,19 @@ def path_parsers(path):
 
 def main(args_):
     opts = parse_options(args_=args_)
-    print(options)
     # Set the options global so other modules will be able to access it later
     options.Options = opts
+    # Use options.Options instead of opts, so when something is overwritten, options.Options will include it
 
-    if opts.endreport:
+    if options.Options.endreport:
         endreport.Endreport.use = True
-    path = path_parsers(opts.path)
-    test_files(opts, path)
+    path = path_parsers(options.Options.path)
+    test_files(options.Options, path)
     endreport.Endreport.print_data()
+
+    if not options.Options.no_error:
+        if endreport.Endreport.raise_error:
+            raise test_failure.TestFailure('One or multiple tests failed!')
 
 if __name__ == '__main__':
     main(sys.argv[1:])
