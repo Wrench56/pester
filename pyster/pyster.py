@@ -188,11 +188,12 @@ class Report():
                     with contextlib.redirect_stdout(debug):
                         func()
                     self.style.print_debug(debug.getvalue())
-                    
-            self.endreport.add_status(func.__name__, True)
+            if self.endreport:        
+                self.endreport.add_status(func.__name__, True)
             self.style.print_passed(func)
-        except Exception as err: # Do the users really want this? Answer: Yes
-            self.endreport.add_status(func.__name__, False)
+        except Exception as err:
+            if self.endreport:
+                self.endreport.add_status(func.__name__, False)
             self.style.print_debug(debug.getvalue()) # Print debug messages even if there is an error
             self.style.print_failed(func, err)
             if not options.Options.no_error:
