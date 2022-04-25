@@ -3,10 +3,10 @@ import os
 import sys
 import argparse
 from rich import console
-from pyster import options
-from pyster.errors import test_failure
+from . import options
+from errors import test_failure
 
-import pyster.endreport as endreport
+import endreport as endreport
 
 def parse_options(args_):
     parser = argparse.ArgumentParser(prog='pyster', description='Test your code!')
@@ -62,8 +62,8 @@ def path_parsers(path):
     if path is not None:
         return path
 
-def main(args_):
-    opts = parse_options(args_=args_)
+def main():
+    opts = parse_options(args_=sys.argv[1:])
     # Set the options global so other modules will be able to access it later
     options.Options = opts
     # Use options.Options instead of opts, so when something is overwritten, options.Options will include it
@@ -79,4 +79,4 @@ def main(args_):
             raise test_failure.TestFailure('One or multiple tests failed!')
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
