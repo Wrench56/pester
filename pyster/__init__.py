@@ -1,3 +1,3 @@
-from pyster import *
-from endreport import *
-from options import *
+from .pyster import *
+from .endreport import *
+from .options import *
