@@ -1,12 +1,12 @@
-import importlib
+from pydoc import importfile  
 import os
 import sys
 import argparse
 from rich import console
-import options
+from pyster import options
 from errors import test_failure
 
-import endreport as endreport
+from pyster import endreport
 
 def parse_options(args_):
     parser = argparse.ArgumentParser(prog='pyster', description='Test your code!')
@@ -19,9 +19,9 @@ def parse_options(args_):
     return parser.parse_args(args_)
 
 def import_files(file_):
-    file_ = file_.replace('//', '.').replace('/', '.').replace('\\', '.').replace('.py', '')
+    file_= file_.replace('//', '/').replace('\\', '/')
 
-    x = importlib.import_module(file_)
+    module = importfile(os.getcwd() + '/' + file_)
 
 def test_files(opts, path):
     smoke_test_done = False
