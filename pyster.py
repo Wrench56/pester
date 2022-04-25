@@ -1,7 +1,7 @@
 import inspect
 import time
-from pyster import options
-from pyster.endreport import Endreport
+from . import options
+from endreport import Endreport
 from pyster.errors import non_overridable_error as nomo
 from pyster.errors import test_failure
 #import timeit
