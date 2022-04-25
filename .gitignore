@@ -1,0 +1,8 @@
+/.vscode
+/experiment
+/pyster/testing/__pycache__
+/pyster/__pycache__
+/pyster/errors/__pycache__
+/python_pyster.egg-info
+/build
+/dist
