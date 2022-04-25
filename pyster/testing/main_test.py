@@ -1,12 +1,11 @@
 import pyster
-from experiment import bar
 import time
 
 style = pyster.Style(style_dict={
     "measure_time": False
 })
 
-class FooBar(bar.Bar, pyster.Test):
+class FooBar(pyster.Test):
     def __init__(self) -> None:
         super().__init__()
     

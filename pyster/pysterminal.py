@@ -3,10 +3,10 @@ import os
 import sys
 import argparse
 from rich import console
-from . import options
+import options
 from errors import test_failure
 
-import pyster.endreport as endreport
+import endreport as endreport
 
 def parse_options(args_):
     parser = argparse.ArgumentParser(prog='pyster', description='Test your code!')
