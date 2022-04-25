@@ -6,7 +6,7 @@ from rich import console
 from . import options
 from errors import test_failure
 
-import endreport as endreport
+import pyster.endreport as endreport
 
 def parse_options(args_):
     parser = argparse.ArgumentParser(prog='pyster', description='Test your code!')

@@ -1,4 +1,4 @@
-from pyster import *
+import pyster
 from experiment import bar
 import time
 
