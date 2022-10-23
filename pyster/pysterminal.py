@@ -24,14 +24,25 @@ def import_files(file_):
     module = importfile(os.getcwd() + '/' + file_)
 
 def test_files(opts, path):
-    smoke_test_done = False
-    for file_ in scan_dir(path):
+
+    files = []
+
+    if opts.no_priority:
+        files = scan_dir(path)
+    else:
+        if os.path.exists(f'{path}/init'):
+            for file_ in scan_dir(f'{path}/init'): 
+                files.append(file_)
+        if os.path.exists(f'{path}/sanity'):
+            for file_ in scan_dir(f'{path}/init'): 
+                files.append(file_)
+        if os.path.exists(f'{path}/normal'):
+            for file_ in scan_dir(f'{path}/init'): 
+                files.append(file_)            
+
+    for file_ in files:
         print(f'<{file_}>')
-        if opts.no_priority:
-            import_files(file_=file_)
-        else:
-            # Do priority...
-            import_files(file_=file_)
+        import_files(file_=file_)
 
 def scan_dir(path):
     with os.scandir(path) as it:
