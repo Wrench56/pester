@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name = 'python-pyster',
-    version = '0.1.17',
+    version = '0.1.18',
     license = 'MIT',
     description = 'Python unit testing made easy with pyster!',
     author = 'Wrench56',
